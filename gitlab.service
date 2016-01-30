@@ -1,0 +1,27 @@
+[Unit]
+Description=Gitlab  Services Add By Spliu
+Requires= docker.service 
+After= docker.service 
+
+[Service]
+TimeoutStartSec=0
+KillMode=none
+EnvironmentFile=/etc/environment
+Type=oneshot
+
+ExecStartPre=-/usr/bin/docker kill itvgitlab
+ExecStartPre=-/usr/bin/docker rm itvgitlab
+ExecStartPre=-/usr/bin/docker pull gitlab/gitlab-ce
+ExecStart= /usr/bin/docker run --detach \
+    --hostname gitlab.itv.cmvideo.com \
+    --publish 443:443 --publish 80:80 --publish 22:22 \
+    --name itvgitlab \
+    --restart always \
+    --volume /home/core/srv/gitlab/config:/etc/gitlab \
+    --volume /home/core/srv/gitlab/logs:/var/log/gitlab \
+    --volume /home/core/srv/gitlab/data:/var/opt/gitlab \
+    gitlab/gitlab-ce:latest
+ExecStop=/usr/bin/docker stop itvgitlab
+
+[Install]
+WantedBy=multi-user.target
