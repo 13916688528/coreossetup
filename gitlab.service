@@ -13,7 +13,7 @@ ExecStartPre=-/usr/bin/docker kill itvgitlab
 ExecStartPre=-/usr/bin/docker rm itvgitlab
 #ExecStartPre=-/usr/bin/docker pull gitlab/gitlab-ce
 ExecStart= /usr/bin/docker run --detach \
-    --hostname gitlab.itv.cmvideo.com \
+    --hostname gitlab.itv.cmvideo.cn \
     --publish 443:443 --publish 80:80 --publish 22:22 \
     --name itvgitlab \
     --restart always \
