@@ -45,6 +45,27 @@ write_files:
     content: |
        COREOS_PRIVATE_IPV4=192.168.1.93
        COREOS_PUBLIC_IPV4=192.168.1.93
+  - path: /etc/ssh/sshd_config
+    permissions: 0600
+    owner: root:root
+    content: |
+      # Use most defaults for sshd configuration.
+      UsePrivilegeSeparation sandbox
+      Subsystem sftp internal-sftp
+
+      PermitRootLogin no
+      AllowUsers core spliu
+      PasswordAuthentication no
+      ChallengeResponseAuthentication no
+
+coreos:
+  units:
+  - name: sshd.socket
+    command: restart
+    content: |
+      [Socket]
+      ListenStream=2222
+      Accept=yes
 
 users:  
   - name: core
