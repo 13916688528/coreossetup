@@ -39,6 +39,12 @@ write_files:
       Address=192.168.1.93/24
       Gateway=192.168.1.1
       DNS=192.168.1.1
+  - path: /etc/enviroment
+    permissions: 0644
+    owner: root
+    content: |
+       COREOS_PRIVATE_IPV4=192.168.1.93
+       COREOS_PUBLIC_IPV4=192.168.1.93
 
 users:  
   - name: core
