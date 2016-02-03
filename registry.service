@@ -1,0 +1,28 @@
+[Unit]
+Description=Registry  Services Add By Spliu
+Requires= docker.service 
+After= docker.service 
+
+[Service]
+TimeoutStartSec=0
+KillMode=none
+#EnvironmentFile=/etc/environment
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=-/usr/bin/docker kill itvregistry
+ExecStartPre=-/usr/bin/docker rm itvregistry
+#ExecStartPre=-/usr/bin/docker pull registry:2.1
+ExecStart= /usr/bin/docker run --detach \
+    --publish 5000:5000 \
+    --name itvregistry \
+    --restart always \
+    --volume /home/core/srv/registry/data:/var/lib/registry \
+    --volume /home/core/srv/registry/config:/etc/docker/registry \
+    --volume /home/core/srv/registry/certs:/certs \
+    -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \
+    -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
+    registry:2.2
+ExecStop=/usr/bin/docker stop itvregistry
+
+[Install]
+WantedBy=multi-user.target
