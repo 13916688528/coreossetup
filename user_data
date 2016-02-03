@@ -1,0 +1,76 @@
+#cloud-config
+
+hostname: migu-coreos-18 
+
+write_files:
+  - path: /etc/modprobe.d/bonding.conf
+    content: |
+      # Prevent kernel from automatically creating bond0 when the module is loaded.
+      # This allows systemd-networkd to create and apply options to bond0.
+      options bonding max_bonds=0
+  - path: /etc/systemd/network/10-eth.network
+    permissions: 0644
+    owner: root
+    content: |
+      [Match]
+      Name=enp1s0f*
+
+      [Network]
+      Bond=bond0
+  - path: /etc/systemd/network/20-bond.netdev
+    permissions: 0644
+    owner: root
+    content: |
+      [NetDev]
+      Name=bond0
+      Kind=bond
+
+      [Bond]
+      Mode=1 # defaults to Active-backup
+      MIIMonitorSec=100
+  - path: /etc/systemd/network/30-bond-setting.network
+    permissions: 0644
+    owner: root
+    content: |
+      [Match]
+      Name=bond0
+
+      [Network]
+      Address=10.200.19.56/24
+      Gateway=10.200.19.1
+      DNS=211.136.112.50
+  - path: /etc/enviroment
+    permissions: 0644
+    owner: root
+    content: |
+       COREOS_PRIVATE_IPV4=192.168.1.93
+       COREOS_PUBLIC_IPV4=117.131.17.54
+  - path: /etc/ssh/sshd_config
+    permissions: 0600
+    owner: root:root
+    content: |
+      # Use most defaults for sshd configuration.
+      UsePrivilegeSeparation sandbox
+      Subsystem sftp internal-sftp
+      PermitRootLogin no
+      AllowUsers core spliu
+      PasswordAuthentication no
+      ChallengeResponseAuthentication no
+
+coreos:
+  units:
+  - name: sshd.socket
+    command: restart
+    content: |
+      [Socket]
+      ListenStream=10080
+      Accept=yes
+
+
+users:  
+  - name: core
+    ssh-authorized-keys: 
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCRor9ROv8PZC8aQ6aBSxj5GVFdGCY3ynTu2mAU832D+Vp2yniwdAXTx9oSO6e36lrTy72G6ECyt98g2014YNZTECtua83aW6Un6PWEQbxiiEXbInXuW6onQFgRtpEdiXdOcgX9TMpJPBuyXiv9GFj6jcgQ2rLu+DzlgmW1fQCgMbriVsbFNmgeA0CddlOgfnT/gn8E1Ypd+WDKpNy0vUXfTNnVzk6rgTHCi2yhfkvZHd9q9Va/2wqSPAwcocJAMUXTBKcko7hTsI86vqetusIMScDlMH3ZVr3T65pF4/1k3T2mJM7n1XibChs5/8gy+3kl04Ou1unIh4xL1RBPsLuf 13916688528@139.com
+  - groups:
+      - sudo
+      - docker
