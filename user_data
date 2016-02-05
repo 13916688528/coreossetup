@@ -60,12 +60,13 @@ write_files:
 coreos:
   units:
   - name: sshd.socket
-    command: restart
+    command: start
     content: |
+      [Unit]
+      Description= OPEN SSHD Service
+      Conflicts=sshd.service
       [Socket]
-      ListenStream=10080
-      Accept=yes
-
+      ListenStream=10080 
 
 users:  
   - name: core
